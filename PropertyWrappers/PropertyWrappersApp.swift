@@ -5,6 +5,7 @@ import Combine
 @main
 struct PropertyWrappersApp: App {
     // @StateObject ensures the model lives as long as the app
+    // Uses Combine: Yes - StateObject requires ObservableObject which uses Combine
     @StateObject private var appViewModel = AppViewModel()
     
     // Environment object that will be available throughout the app
@@ -23,8 +24,10 @@ struct PropertyWrappersApp: App {
 // MARK: - Models
 
 // Observable object for @ObservedObject and @StateObject demos
+// Uses Combine: Yes - ObservableObject protocol is from Combine framework
 class AppViewModel: ObservableObject {
     // @Published automatically publishes changes to observers
+    // Uses Combine: Yes - Published property wrapper is from Combine framework
     @Published var counter = 0
     @Published var username = ""
     @Published var isLoggedIn = false
@@ -43,11 +46,14 @@ class AppViewModel: ObservableObject {
 }
 
 // Observable object for @Binding demo
+// Uses Combine: Yes - ObservableObject protocol is from Combine framework
 class FormViewModel: ObservableObject {
+    // Uses Combine: Yes - Published property wrapper is from Combine framework
     @Published var text = ""
 }
 
 // Class for @Bindable demo (iOS 17+)
+// Uses Combine: No - Uses the new Observation framework instead of Combine
 @Observable class NewTaskModel {
     var title = ""
     var notes = ""
@@ -61,7 +67,12 @@ class FormViewModel: ObservableObject {
 
 // MARK: - Main Navigation View
 struct ContentView: View {
+    // @EnvironmentObject receives data from the environment
+    // Uses Combine: Yes - requires ObservableObject which uses Combine
     @EnvironmentObject var appViewModel: AppViewModel
+    
+    // @State tracks simple value types local to this view
+    // Uses Combine: No - just SwiftUI internal mechanics
     @State private var selectedWrapper: PropertyWrapper?
     
     enum PropertyWrapper: String, CaseIterable, Identifiable {
@@ -129,9 +140,9 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Individual Demo Views
-
-// @State Demo: Local view state
+// MARK: - @State Demo
+// @State is for simple value types that are managed by the view
+// Uses Combine: No - SwiftUI's internal value tracking
 struct StateDemo: View {
     // @State is for view-local data owned by the view
     @State private var counter = 0
@@ -142,7 +153,6 @@ struct StateDemo: View {
         VStack(spacing: 20) {
             headerView(title: "@State",
                        description: "For simple view-local state that the view owns")
-                        
             
             Text("Counter: \(counter)")
                 .font(.headline)
@@ -165,7 +175,9 @@ struct StateDemo: View {
     }
 }
 
-// @Binding Demo: Data passed from parent
+// MARK: - @Binding Demo
+// @Binding creates a reference to a value stored elsewhere
+// Uses Combine: No - just SwiftUI's property wrapper system
 struct BindingDemo: View {
     @State private var text = "Edit this text"
     @State private var toggleValue = false
@@ -189,8 +201,10 @@ struct BindingDemo: View {
     }
 }
 
+// Child view that uses @Binding to refer to parent's state
 struct BindingChildView: View {
     // @Binding receives data from parent view
+    // Uses Combine: No - just SwiftUI's property wrapper system
     @Binding var text: String
     @Binding var isOn: Bool
     
@@ -212,7 +226,9 @@ struct BindingChildView: View {
     }
 }
 
-// @ObservedObject Demo: External reference type
+// MARK: - @ObservedObject Demo
+// @ObservedObject observes an external object for changes
+// Uses Combine: Yes - requires ObservableObject protocol from Combine
 struct ObservedObjectDemo: View {
     // @ObservedObject references an external observable object
     @ObservedObject var viewModel = FormViewModel()
@@ -243,7 +259,9 @@ struct ObservedObjectDemo: View {
     }
 }
 
-// @EnvironmentObject Demo: Globally available object
+// MARK: - @EnvironmentObject Demo
+// @EnvironmentObject provides app-wide state via the environment
+// Uses Combine: Yes - Requires ObservableObject from Combine
 struct EnvironmentObjectDemo: View {
     // @EnvironmentObject receives data from the environment
     @EnvironmentObject var appViewModel: AppViewModel
@@ -290,7 +308,9 @@ struct EnvironmentObjectDemo: View {
     }
 }
 
-// @StateObject Demo: View owns the model
+// MARK: - @StateObject Demo
+// @StateObject creates and owns an ObservableObject instance
+// Uses Combine: Yes - requires ObservableObject protocol from Combine
 struct StateObjectDemo: View {
     // @StateObject is owned by the view and persists through view updates
     @StateObject private var viewModel = AppViewModel()
@@ -324,7 +344,9 @@ struct StateObjectDemo: View {
     }
 }
 
-// @Published Demo: Property of ObservableObject
+// MARK: - @Published Demo
+// @Published automatically announces when a property changes
+// Uses Combine: Yes - @Published is a property wrapper from Combine
 struct PublishedDemo: View {
     @StateObject private var viewModel = AppViewModel()
     
@@ -372,7 +394,9 @@ struct PublishedDemo: View {
     }
 }
 
-// @AppStorage Demo: UserDefaults integration
+// MARK: - @AppStorage Demo
+// @AppStorage provides persistent storage using UserDefaults
+// Uses Combine: No - just SwiftUI's property wrapper system
 struct AppStorageDemo: View {
     // @AppStorage persists in UserDefaults
     @AppStorage("username") private var username = ""
@@ -419,7 +443,9 @@ struct AppStorageDemo: View {
     }
 }
 
-// @SceneStorage Demo: Scene persistence
+// MARK: - @SceneStorage Demo
+// @SceneStorage persists state when app enters background
+// Uses Combine: No - just SwiftUI's property wrapper system
 struct SceneStorageDemo: View {
     // @SceneStorage persists state across scene sessions
     @SceneStorage("draftText") private var draftText = ""
@@ -480,7 +506,9 @@ struct SceneStorageDemo: View {
     }
 }
 
-// @Environment Demo: System/environment values
+// MARK: - @Environment Demo
+// @Environment accesses values from the SwiftUI environment
+// Uses Combine: No - built into SwiftUI's environment system
 struct EnvironmentDemo: View {
     // @Environment accesses environment values
     @Environment(\.colorScheme) var colorScheme
@@ -538,7 +566,9 @@ struct EnvironmentDemo: View {
     }
 }
 
-// @FocusState Demo: Focus tracking
+// MARK: - @FocusState Demo
+// @FocusState manages input focus for form fields and keyboards
+// Uses Combine: No - SwiftUI's internal focus tracking system
 struct FocusStateDemo: View {
     enum Field: Hashable {
         case username
@@ -608,7 +638,9 @@ struct FocusStateDemo: View {
     }
 }
 
-// @Bindable Demo (iOS 17+): Using the new Observation framework
+// MARK: - @Bindable Demo (iOS 17+)
+// @Bindable works with the new Observation framework in iOS 17+
+// Uses Combine: No - uses the Observation framework instead
 @available(iOS 17.0, macOS 14.0, *)
 struct BindableDemo: View {
     // Using Observable class from new Observation framework
@@ -674,6 +706,7 @@ struct BindableDemo: View {
     }
 }
 
+// Child view that uses @Bindable to bind to Observable properties
 @available(iOS 17.0, macOS 14.0, *)
 struct TaskEditorView: View {
     // @Bindable provides bindings to properties of Observable classes
