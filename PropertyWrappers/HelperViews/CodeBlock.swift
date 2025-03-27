@@ -12,7 +12,6 @@ struct CodeBlock: View {
     let language = ProgrammingLanguage.swift
     
     @State private var showCopiedMessage = false
-    @State private var triggerParticles = false
     
     private var screenWidth: CGFloat {
         #if os(iOS)
@@ -37,7 +36,6 @@ struct CodeBlock: View {
         // Trigger the copied message and particles
         withAnimation {
             showCopiedMessage = true
-            triggerParticles = true
         }
         
         // Hide the message after 1 second
@@ -90,19 +88,6 @@ struct CodeBlock: View {
                     .transition(.opacity)
                     .padding(.top, 40) // Position below button
                     .padding(.trailing, 16)
-            }
-            
-            // Particle effect
-            if triggerParticles {
-                ParticleEffect()
-                    .frame(width: 50, height: 50)
-                    .background(Color.red)
-                    .position(x: screenWidth - 40, y: 20) // Position near button
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            triggerParticles = false // Reset after short duration
-                        }
-                    }
             }
         }
     }
