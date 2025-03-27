@@ -7,27 +7,38 @@
 
 import SwiftUI
 
-// Simple Particle Effect View
 struct ParticleEffect: View {
-    @State private var animate = false
+    @State private var isAnimating = false
     
     var body: some View {
         ZStack {
-            ForEach(0..<10) { i in
+            ForEach(0..<10) { index in
                 Circle()
-                    .frame(width: 5, height: 5)
-                    .foregroundColor(.blue.opacity(0.8))
-                    .offset(x: animate ? CGFloat.random(in: -20...20) : 0,
-                           y: animate ? CGFloat.random(in: -20...20) : 0)
+                    .fill(Color.blue.opacity(0.8))
+                    .frame(width: 10, height: 10)
+                    .offset(
+                        x: isAnimating ? CGFloat.random(in: -100...100) : 0,
+                        y: isAnimating ? CGFloat.random(in: -100...100) : 0
+                    )
+                    .opacity(isAnimating ? 0 : 1)
                     .animation(
-                        Animation.easeOut(duration: 0.5)
-                            .delay(Double(i) * 0.05),
-                        value: animate
+                        .easeOut(duration: 1.0)
+                        .delay(Double(index) * 0.1),
+                        value: isAnimating
                     )
             }
         }
         .onAppear {
-            animate = true
+            isAnimating = true
         }
+    }
+}
+
+// Preview for testing
+struct ParticleEffect_Previews: PreviewProvider {
+    static var previews: some View {
+        ParticleEffect()
+            .frame(width: 200, height: 200)
+            .background(Color.gray.opacity(0.2))
     }
 }

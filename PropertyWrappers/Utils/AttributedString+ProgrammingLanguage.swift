@@ -12,18 +12,11 @@ import UIKit
 #endif
 import SwiftUI
 
-// Color extension for platform-specific conversion
-extension Color {
-    #if os(macOS)
-    var nsColor: NSColor {
-        NSColor(self)
-    }
-    #else
-    var uiColor: UIColor {
-        UIColor(self)
-    }
-    #endif
-}
+#if os(macOS)
+typealias SystemColor = NSColor
+#else
+typealias SystemColor = UIColor
+#endif
 
 enum ProgrammingLanguage {
     case swift
@@ -77,42 +70,32 @@ extension AttributedString {
         let stringPattern = #""[^"]*"|'[^']*'"#  // Double or single quoted strings
         let numberPattern = #"\b\d+\.?\d*\b"#     // Basic number matching
         
-        // Define colors using SwiftUI Color with system colors
-        let purple = Color.purple
-        let red = Color.red
-        let blue = Color.blue
-        let green = Color.green
-        
         // Helper function to apply highlighting with platform-specific colors
-        func applyHighlighting(pattern: String, color: Color) {
+        func applyHighlighting(pattern: String, color: SystemColor) {
             let regex = try? NSRegularExpression(pattern: pattern, options: [.anchorsMatchLines])
             let nsRange = NSRange(code.startIndex..<code.endIndex, in: code)
             regex?.enumerateMatches(in: code, range: nsRange) { match, _, _ in
                 if let matchRange = match?.range,
                    let stringRange = Range(matchRange, in: code),
                    let attrRange = Range(stringRange, in: self) {
-                    #if os(macOS)
-                    self[attrRange].foregroundColor = Color(nsColor: color.nsColor)
-                    #else
-                    self[attrRange].foregroundColor = Color(uiColor: color.uiColor)
-                    #endif
+                    self[attrRange].foregroundColor = color
                 }
             }
         }
         
         // Apply keyword highlighting
         for keyword in language.keywords {
-            applyHighlighting(pattern: "\\b\(keyword)\\b", color: purple)
+            applyHighlighting(pattern: "\\b\(keyword)\\b", color: .systemPurple)
         }
         
         // Apply string highlighting
-        applyHighlighting(pattern: stringPattern, color: red)
+        applyHighlighting(pattern: stringPattern, color: .systemPink)
         
         // Apply number highlighting
-        applyHighlighting(pattern: numberPattern, color: blue)
+        applyHighlighting(pattern: numberPattern, color: .systemBlue)
         
         // Apply single-line comment highlighting
-        applyHighlighting(pattern: language.singleLineComment, color: green)
+        applyHighlighting(pattern: language.singleLineComment, color: .systemGreen)
         
         // Apply multi-line comment highlighting
         let fullCode = code as NSString
@@ -139,11 +122,8 @@ extension AttributedString {
                                   length: endRange.location + endRange.length - startRange.location)
             if let stringRange = Range(fullRange, in: code),
                let attrRange = Range(stringRange, in: self) {
-                #if os(macOS)
-                self[attrRange].foregroundColor = Color(nsColor: green.nsColor)
-                #else
-                self[attrRange].foregroundColor = Color(uiColor: green.uiColor)
-                #endif
+                let commentColor: SystemColor = .systemIndigo
+                self[attrRange].foregroundColor = commentColor
             }
             searchStart = endRange.location + endRange.length
         }
