@@ -9,10 +9,11 @@ import SwiftUI
 
 struct CodeBlock: View {
     let code: String
+    let language = ProgrammingLanguage.swift
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            Text(code)
+            Text(AttributedString(code: code, language: language))
                 .font(.system(.body, design: .monospaced))
                 .padding()
         }
