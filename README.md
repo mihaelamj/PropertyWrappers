@@ -31,7 +31,7 @@ The app includes demos for the following property wrappers:
 
 ## Requirements
 
-- iOS 15.0+
+- iOS 15.0+ or macOS 12.0+
 - Xcode 13.0+
 - Swift 5.5+
 
